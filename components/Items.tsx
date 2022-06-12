@@ -1,4 +1,4 @@
-import { Pressable, Text, View, StyleSheet } from 'react-native';
+import { Pressable, Text, View, StyleSheet, Image } from 'react-native';
 import { request, gql } from 'graphql-request'
 import { useEffect, useState } from 'react';
 export const Items = function({navigation}: any) {
@@ -24,51 +24,30 @@ const [weapons, setWeapons] = useState()
 
 useEffect(() => {
 
-//   const query2 = gql`
-// {
-//   items {
-//     name
-//     types
-// }
-// }
-// `
-//   request('https://api.tarkov.dev/graphql', query2).then((data) => setWeapons(data))
-});
-
-const testData = {
-  "posts": {
-    "data": [
-      {
-        "id": "1",
-        "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit"
-      },
-      {
-        "id": "2",
-        "title": "qui est esse"
-      },
-      {
-        "id": "3",
-        "title": "ea molestias quasi exercitationem repellat qui ipsa sit aut"
-      },
-      {
-        "id": "4",
-        "title": "eum et est occaecati"
-      },
-      {
-        "id": "5",
-        "title": "nesciunt quas odio"
-      }
-    ],
-  }
+  const query = gql`
+{
+    itemsByType(type: gun) {
+        id
+        name
+        iconLink
+    }
 }
-console.log(weapons)
+`
+  request('https://api.tarkov.dev/graphql', query).then((data) => setWeapons(data))
+},[]);
 
+
+console.log(weapons && weapons.itemsByType)
 const list = () => {
-  return testData.posts.data.map((element) => {
+  return weapons && weapons.itemsByType.map((weapon: any) => {
     return (
-      <View key={element.id} style={{margin: 10}}>
-        <Text style={styles.text}>{element.id}</Text>
-        <Text style={styles.text}>{element.title}</Text>
+      <View key={weapon.id} style={{margin: 10}}>
+        <Text style={styles.text}>{weapon.name}</Text>
+        <Image
+        style={styles.image}
+        source={{
+          uri: `${weapon.iconLink}`,
+        }} />
       </View>
     );
   });
@@ -82,11 +61,11 @@ const list = () => {
       <Pressable
       onPress={onPressHandler}
       >
-        {list()}
         <Text style={styles.text}>
           Go to HomePage
         </Text>
       </Pressable>
+      {list()}
     </View>
   )
 }
@@ -99,5 +78,9 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#fff',
+  },
+  image: {
+    width: '100px',
+    height: '100px'
   }
 });
